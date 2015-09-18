@@ -82,7 +82,7 @@ library(lattice)</code></pre>
 <li>interval: Identifier for the 5-minute interval in which measurement was taken</li>
 </ul>
 <p>At first the total steps per day and the average steps per interval are calculated. Therefor the ddply function of the plyr package is used.</p>
-<pre class="r"><code># total steps per day
+<pre class="r"><code># total steps per date
 steps &lt;- ddply(activity.data, .(date), summarize, total = sum(steps))
 # average steps per interval
 steps.interval &lt;- ddply(activity.data, .(interval), summarize, 
@@ -101,7 +101,7 @@ steps.interval &lt;- ddply(activity.data, .(interval), summarize,
 </ol>
 <pre class="r"><code>steps.mean &lt;- as.integer(round(mean(steps$total, na.rm = TRUE)))
 steps.median &lt;- median(steps$total, na.rm = TRUE)</code></pre>
-<p>The mean is 10766 and the median is 10765</p>
+<p>The mean is <strong>10766</strong> and the median is <strong>10765</strong></p>
 </div>
 <div id="what-is-the-average-daily-activity-pattern" class="section level2">
 <h2>What is the average daily activity pattern?</h2>
@@ -122,11 +122,13 @@ steps.median &lt;- median(steps$total, na.rm = TRUE)</code></pre>
 <ol style="list-style-type: decimal">
 <li>Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)</li>
 </ol>
-<pre class="r"><code>total.na &lt;- sum(is.na(activity.data$steps))</code></pre>
-<p>The total number of missing values in this dataset is 2304</p>
+<pre class="r"><code>total.na &lt;- sum(is.na(activity.data$steps))
+total.na.perc &lt;- round(100 / nrow(activity.data) * total.na)</code></pre>
+<p>The total number of missing values in this dataset is <strong>2304</strong> which is about <strong>13</strong> % of all values in the dataset. As this is a relativly high amount of missing values. A stategie is evolved for filling in all of the missing values with a good aproximation.</p>
 <ol start="2" style="list-style-type: decimal">
 <li>Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.</li>
 </ol>
+<p>The stategy used fills in the missing values with the average value of the interval. Therefor a function is created, which check if the steps are missing for a single row. If this is the case a lookup of the average value of this interval is performed, otherwise the original value is taken.</p>
 <pre class="r"><code>fill.strategy &lt;- function(x) {
     if (is.na(x[1])) {
         # detect the row, containing the average for this interval
@@ -139,6 +141,7 @@ steps.median &lt;- median(steps$total, na.rm = TRUE)</code></pre>
         x[1]
     }
 }</code></pre>
+<p>This function can now be used in the apply function of r.</p>
 <ol start="3" style="list-style-type: decimal">
 <li>Create a new dataset that is equal to the original dataset but with the missing data filled in.</li>
 </ol>

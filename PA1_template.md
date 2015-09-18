@@ -51,7 +51,7 @@ At first the total steps per day and the average steps per interval are calculat
 Therefor the ddply function of the plyr package is used.
 
 ```r
-# total steps per day
+# total steps per date
 steps <- ddply(activity.data, .(date), summarize, total = sum(steps))
 # average steps per interval
 steps.interval <- ddply(activity.data, .(interval), summarize, 
@@ -76,7 +76,7 @@ steps.mean <- as.integer(round(mean(steps$total, na.rm = TRUE)))
 steps.median <- median(steps$total, na.rm = TRUE)
 ```
 
-The mean is 10766 and the median is 10765
+The mean is **10766** and the median is **10765**
 
 ## What is the average daily activity pattern?
 
@@ -109,13 +109,22 @@ steps.interval[which.max( steps.interval$avg ), ]$interval
 
 ```r
 total.na <- sum(is.na(activity.data$steps))
+total.na.perc <- round(100 / nrow(activity.data) * total.na)
 ```
 
-The total number of missing values in this dataset is 2304
+The total number of missing values in this dataset is **2304** which 
+is about **13** % of all values in the dataset. As this is a 
+relativly high amount of missing values. A stategie is evolved for filling in 
+all of the missing values with a good aproximation.
 
 2. Devise a strategy for filling in all of the missing values in the dataset. 
 The strategy does not need to be sophisticated. For example, you could use 
 the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+The stategy used fills in the missing values with the average value of the 
+interval. Therefor a function is created, which check if the steps are missing
+for a single row. If this is the case a lookup of the average value of this 
+interval is performed, otherwise the original value is taken.
 
 
 ```r
@@ -132,6 +141,8 @@ fill.strategy <- function(x) {
     }
 }
 ```
+
+This function can now be used in the apply function of r.
 
 3. Create a new dataset that is equal to the 
 original dataset but with the missing data filled in.
