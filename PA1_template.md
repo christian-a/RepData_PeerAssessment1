@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 It is now possible to collect a large amount of data about personal movement 
 using activity monitoring devices such as a 
@@ -25,7 +20,8 @@ in 5 minute intervals each day.
 
 ## Loading and preprocessing the data
 First the necessary libraries are loaded.
-```{r, results='hide', message=FALSE, echo=TRUE}
+
+```r
 library(lubridate)
 library(plyr)
 library(lattice)
@@ -40,7 +36,8 @@ For this script the Activity monitoring data must be located in the data
 directory beneath the current workspace directory. The original dataset can 
 be loaded here:
 [Activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K]
-```{r}
+
+```r
 activity.data <- read.csv("./data/activity.csv")
 ```
 
@@ -52,8 +49,9 @@ The dataset are consists of three variables:
 
 At first the total steps per day and the average steps per interval are calculated.
 Therefor the ddply function of the plyr package is used.
-```{r}
-# total steps per date
+
+```r
+# total steps per day
 steps <- ddply(activity.data, .(date), summarize, total = sum(steps))
 # average steps per interval
 steps.interval <- ddply(activity.data, .(interval), summarize, 
@@ -63,32 +61,44 @@ steps.interval <- ddply(activity.data, .(interval), summarize,
 ## What is mean total number of steps taken per day?
 
 1. Make a histogram of the total number of steps taken each day
-```{r}
+
+```r
 hist(steps$total, main = "Histogram of total steps per day", 
      xlab="total steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
 2. Calculate and report the mean and median total number of steps taken per day
-```{r}
+
+```r
 steps.mean <- as.integer(round(mean(steps$total, na.rm = TRUE)))
 steps.median <- median(steps$total, na.rm = TRUE)
 ```
 
-The mean is `r steps.mean` and the median is `r steps.median`
+The mean is 10766 and the median is 10765
 
 ## What is the average daily activity pattern?
 
 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis)
 and the average number of steps taken, averaged across all days (y-axis)
-```{r, fig.height=4}
+
+```r
 xyplot(avg ~ interval, data = steps.interval, type = "l", xlab = "Interval", 
        ylab = "Average number of steps",)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+
 2. Which 5-minute interval, on average across all the days in the dataset,
 contains the maximum number of steps?
-```{r}
+
+```r
 steps.interval[which.max( steps.interval$avg ), ]$interval
+```
+
+```
+## [1] 835
 ```
 
 
@@ -96,17 +106,19 @@ steps.interval[which.max( steps.interval$avg ), ]$interval
 
 1. Calculate and report the total number of missing values in the dataset
 (i.e. the total number of rows with NAs)
-```{r}
+
+```r
 total.na <- sum(is.na(activity.data$steps))
 ```
 
-The total number of missing values in this dataset is `r total.na`
+The total number of missing values in this dataset is 2304
 
 2. Devise a strategy for filling in all of the missing values in the dataset. 
 The strategy does not need to be sophisticated. For example, you could use 
 the mean/median for that day, or the mean for that 5-minute interval, etc.
 
-```{r}
+
+```r
 fill.strategy <- function(x) {
     if (is.na(x[1])) {
         # detect the row, containing the average for this interval
@@ -124,7 +136,8 @@ fill.strategy <- function(x) {
 3. Create a new dataset that is equal to the 
 original dataset but with the missing data filled in.
 
-```{r}
+
+```r
 # copy dataset to adf (activity data filled)
 adf <- activity.data
 # fill in the missing values from the previous strategy
@@ -137,7 +150,8 @@ these values differ from the estimates from the first part of the assignment?
 What is the impact of imputing missing data on the estimates of the total 
 daily number of steps?
 
-```{r}
+
+```r
 adf.steps <- ddply(adf, .(date), summarize, total = sum(steps))
 adf.mean <- as.integer(round(mean(adf.steps$total, na.rm = TRUE)))
 adf.median <- median(adf.steps$total, na.rm = TRUE)
@@ -146,7 +160,9 @@ hist(adf.steps$total, main = "Histogram of total steps per day",
      xlab="total steps per day")
 ```
 
-The mean is `r adf.mean` and the median is `r adf.median`. Using mean of each
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
+
+The mean is 10766 and the median is 10762. Using mean of each
 interval fo fill the missing values, there is no significant difference to the
 original data set containing the missing values. The rounded values of mean
 
@@ -154,7 +170,8 @@ original data set containing the missing values. The rounded values of mean
 
 1. Create a new factor variable in the dataset with two levels - "weekday" 
 and "weekend" indicating whether a given date is a weekday or weekend day.
-```{r}
+
+```r
 adf$dow <- ifelse(wday(adf$date) %in% c(1, 7), "weekend", "weekday")
 adf$dow <- factor(adf$dow)
 ```
@@ -164,7 +181,8 @@ adf$dow <- factor(adf$dow)
 across all weekday days or weekend days (y-axis). The plot should look 
 something like the following, which was creating using simulated data:
 
-```{r}
+
+```r
 aa <- ddply(adf, .(dow, interval), summarize, avg = mean(steps, na.rm = TRUE))
 xyplot(aa$avg ~ aa$interval | aa$dow, layout = c(1, 2), type = "l", 
        xlab = "Interval", ylab = "Number of steps",
@@ -175,3 +193,5 @@ xyplot(aa$avg ~ aa$interval | aa$dow, layout = c(1, 2), type = "l",
                adj = c(0, -0.8), cex = 0.7) ## Add values of mean to the line
 })
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png) 
