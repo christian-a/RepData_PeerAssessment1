@@ -19,7 +19,8 @@ the months of October and November, 2012 and include the number of steps taken
 in 5 minute intervals each day.
 
 ## Loading and preprocessing the data
-First the necessary libraries are loaded.
+First the necessary libraries are loaded. As there is a warning message, that 
+a function is hided, message is set to FALSE for this code block.
 
 ```r
 library(lubridate)
@@ -64,10 +65,12 @@ steps.interval <- ddply(activity.data, .(interval), summarize,
 
 ```r
 hist(steps$total, main = "Histogram of total steps per day", 
-     xlab="total steps per day")
+     xlab="Total steps per day")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+Most of the days about 10.000 and 15.000 steps are taken a dayx.
 
 2. Calculate and report the mean and median total number of steps taken per day
 
@@ -76,7 +79,9 @@ steps.mean <- as.integer(round(mean(steps$total, na.rm = TRUE)))
 steps.median <- median(steps$total, na.rm = TRUE)
 ```
 
-The mean is **10766** and the median is **10765**
+The mean count of steps a day is **10766** while the median count of 
+steps a day is **10765**. There is only a differenc of one step 
+between the mean and the median.
 
 ## What is the average daily activity pattern?
 
@@ -85,22 +90,23 @@ and the average number of steps taken, averaged across all days (y-axis)
 
 ```r
 xyplot(avg ~ interval, data = steps.interval, type = "l", xlab = "Interval", 
-       ylab = "Average number of steps",)
+       ylab = "Average number of steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+In the first hours of a day, there is more or less no acitivity. One probable 
+reason may be that the individual was sleeping in these intervals. There is 
+always a high acivity during the interval of 800 and 900 which may be an
+indivator for walking to work or early-morning exercise.
 
 2. Which 5-minute interval, on average across all the days in the dataset,
 contains the maximum number of steps?
 
 ```r
-steps.interval[which.max( steps.interval$avg ), ]$interval
+max.interval <- steps.interval[which.max( steps.interval$avg ), ]$interval
 ```
 
-```
-## [1] 835
-```
-
+The 5-minute with the maximum number of steps is **835**.
 
 ## Imputing missing values
 

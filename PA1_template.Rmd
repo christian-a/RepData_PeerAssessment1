@@ -24,7 +24,8 @@ the months of October and November, 2012 and include the number of steps taken
 in 5 minute intervals each day.
 
 ## Loading and preprocessing the data
-First the necessary libraries are loaded.
+First the necessary libraries are loaded. As there is a warning message, that 
+a function is hided, message is set to FALSE for this code block.
 ```{r, results='hide', message=FALSE, echo=TRUE}
 library(lubridate)
 library(plyr)
@@ -65,8 +66,10 @@ steps.interval <- ddply(activity.data, .(interval), summarize,
 1. Make a histogram of the total number of steps taken each day
 ```{r}
 hist(steps$total, main = "Histogram of total steps per day", 
-     xlab="total steps per day")
+     xlab="Total steps per day")
 ```
+
+Most of the days about 10.000 and 15.000 steps are taken a day.
 
 2. Calculate and report the mean and median total number of steps taken per day
 ```{r}
@@ -74,7 +77,9 @@ steps.mean <- as.integer(round(mean(steps$total, na.rm = TRUE)))
 steps.median <- median(steps$total, na.rm = TRUE)
 ```
 
-The mean is **`r steps.mean`** and the median is **`r steps.median`**
+The mean count of steps a day is **`r steps.mean`** while the median count of 
+steps a day is **`r steps.median`**. There is only a differenc of one step 
+between the mean and the median.
 
 ## What is the average daily activity pattern?
 
@@ -82,15 +87,20 @@ The mean is **`r steps.mean`** and the median is **`r steps.median`**
 and the average number of steps taken, averaged across all days (y-axis)
 ```{r, fig.height=4}
 xyplot(avg ~ interval, data = steps.interval, type = "l", xlab = "Interval", 
-       ylab = "Average number of steps",)
+       ylab = "Average number of steps")
 ```
+In the first hours of a day, there is more or less no acitivity. One probable 
+reason may be that the individual was sleeping in these intervals. There is 
+always a high acivity during the interval of 800 and 900 which may be an
+indivator for walking to work or early-morning exercise.
 
 2. Which 5-minute interval, on average across all the days in the dataset,
 contains the maximum number of steps?
 ```{r}
-steps.interval[which.max( steps.interval$avg ), ]$interval
+max.interval <- steps.interval[which.max( steps.interval$avg ), ]$interval
 ```
 
+The 5-minute with the maximum number of steps is **`r  max.interval`**.
 
 ## Imputing missing values
 
@@ -142,6 +152,10 @@ adf <- activity.data
 adf$steps <- as.integer(apply(adf, 1, fill.strategy))
 ```
 
+This code create a copy of the original dataset and replaces the missing 
+values (NAs) with values calculated by the strategie introduces above. After 
+this step there are no missing values in the dataset.
+
 4. Make a histogram of the total number of steps taken each day and Calculate 
 and report the mean and median total number of steps taken per day. Do 
 these values differ from the estimates from the first part of the assignment? 
@@ -152,14 +166,18 @@ daily number of steps?
 adf.steps <- ddply(adf, .(date), summarize, total = sum(steps))
 adf.mean <- as.integer(round(mean(adf.steps$total, na.rm = TRUE)))
 adf.median <- median(adf.steps$total, na.rm = TRUE)
+diff.steps <- abs(adf.mean - adf.median)
 
 hist(adf.steps$total, main = "Histogram of total steps per day", 
-     xlab="total steps per day")
+     xlab="Total steps per day")
 ```
 
-The mean is `r adf.mean` and the median is `r adf.median`. Using mean of each
+Also after filling in the missing values, most of the days about 10.000 
+and 15.000 steps are taken a day.  
+The mean is **`r adf.mean`** and the median is **`r adf.median`**. Using mean of each
 interval fo fill the missing values, there is no significant difference to the
-original data set containing the missing values. The rounded values of mean
+original data set containing the missing values. The rounded values of mean differs in
+**`r diff.steps`** steps from the median value.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -169,6 +187,11 @@ and "weekend" indicating whether a given date is a weekday or weekend day.
 adf$dow <- ifelse(wday(adf$date) %in% c(1, 7), "weekend", "weekday")
 adf$dow <- factor(adf$dow)
 ```
+
+Using the wday function of the lubridate package, a new factor variable is
+introduces which differenciate the weekdays (Monday, Tuesday, Wednesday, Thursday, 
+Friday) and the days at weekend (Saturday, Sunday).  
+wday starts with Sun as first day (1) and Sat and last day (7) of a week.
 
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 
 5-minute interval (x-axis) and the average number of steps taken, averaged 
@@ -186,3 +209,8 @@ xyplot(aa$avg ~ aa$interval | aa$dow, layout = c(1, 2), type = "l",
                adj = c(0, -0.8), cex = 0.7) ## Add values of mean to the line
 })
 ```
+
+There is a difference activity pattern at the weekend. The individuum is taking
+more steps per intervat in average and the activity starts later a day. As there
+is not the high spike between the 800 and 900 interval, probably the way to work 
+is missing at the weekend.
