@@ -70,7 +70,7 @@ hist(steps$total, main = "Histogram of total steps per day",
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
-Most of the days about 10.000 and 15.000 steps are taken a dayx.
+Most of the days about 10.000 and 15.000 steps are taken a day.
 
 2. Calculate and report the mean and median total number of steps taken per day
 
@@ -161,6 +161,10 @@ adf <- activity.data
 adf$steps <- as.integer(apply(adf, 1, fill.strategy))
 ```
 
+This code create a copy of the original dataset and replaces the missing 
+values (NAs) with values calculated by the strategie introduces above. After 
+this step there are no missing values in the dataset.
+
 4. Make a histogram of the total number of steps taken each day and Calculate 
 and report the mean and median total number of steps taken per day. Do 
 these values differ from the estimates from the first part of the assignment? 
@@ -172,16 +176,20 @@ daily number of steps?
 adf.steps <- ddply(adf, .(date), summarize, total = sum(steps))
 adf.mean <- as.integer(round(mean(adf.steps$total, na.rm = TRUE)))
 adf.median <- median(adf.steps$total, na.rm = TRUE)
+diff.steps <- abs(adf.mean - adf.median)
 
 hist(adf.steps$total, main = "Histogram of total steps per day", 
-     xlab="total steps per day")
+     xlab="Total steps per day")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
 
-The mean is 10766 and the median is 10762. Using mean of each
+Also after filling in the missing values, most of the days about 10.000 
+and 15.000 steps are taken a day.  
+The mean is **10766** and the median is **10762**. Using mean of each
 interval fo fill the missing values, there is no significant difference to the
-original data set containing the missing values. The rounded values of mean
+original data set containing the missing values. The rounded values of mean differs in
+**4** steps from the median value.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -192,6 +200,11 @@ and "weekend" indicating whether a given date is a weekday or weekend day.
 adf$dow <- ifelse(wday(adf$date) %in% c(1, 7), "weekend", "weekday")
 adf$dow <- factor(adf$dow)
 ```
+
+Using the wday function of the lubridate package, a new factor variable is
+introduces which differenciate the weekdays (Monday, Tuesday, Wednesday, Thursday, 
+Friday) and the days at weekend (Saturday, Sunday).  
+wday starts with Sun as first day (1) and Sat and last day (7) of a week.
 
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 
 5-minute interval (x-axis) and the average number of steps taken, averaged 
@@ -212,3 +225,8 @@ xyplot(aa$avg ~ aa$interval | aa$dow, layout = c(1, 2), type = "l",
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-13-1.png) 
+
+There is a difference activity pattern at the weekend. The individuum is taking
+more steps per intervat in average and the activity starts later a day. As there
+is not the high spike between the 800 and 900 interval, probably the way to work 
+is missing at the weekend.
